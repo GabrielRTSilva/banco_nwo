@@ -68,7 +68,7 @@ moedas = st.session_state.carteira
 extrato = st.session_state.extrato
 
 valor_da_moeda_topo_historico = [111970.00, 2651.53, 1.00, 179.70, 0.6628, 0.1823, 20.32, 2.19, 1.00, 4.90]
-porcentagem_de_aumento = [5.92, 1.175, 1, 14.2, 2.01, 1.815, 1.03, 4.04, 1,  1]
+porcentagem_de_aumento = [5.92, 1.175, 0, 14.2, 2.01, 1.815, 1.03, 4.04, 0,  0]
 
 
 #App Contet
@@ -215,7 +215,7 @@ with aba4:
 with aba5: 
     st.header('Quanto você teria hoje se tivesse investido o valor que possui em sua carteira do Banco NWO em criptomoedas na vida real?')
     st.text('O último bearmarket do Bitcoin formou novos milionários ao redor do mundo. O próprio BTC atingiu o seu topo histórico em 22/05/2025 com uma alta de 592% em relação ao seu menor valor no ciclo. As altcoins mais comercializadas hoje, de acordo com a Coin Market Cap, também alavancaram o patrimônio daqueles investidores mais ousados. Veja a seguir uma tabela comparando o valor direto de cada cripto ativo em relação ao seu crescimento em porcentagem.')
-    st.text('Obs.: Nessa cálculo não foi considerado a variação do dolar.')
+    st.text('Obs.: Nesse cálculo não foi considerado a variação do dolar.')
     st.divider()
 
     investimento_2025 = {
@@ -224,8 +224,8 @@ with aba5:
     'QTD TOKENS': table_carteira['QTD. TOKENS'],
     'VALOR APLICADO EM 2022': table_carteira['VALOR APLICADO'],
     'AUMENTO EM PORCENTAGEM ': [str(f'{round(i * 100,2)} %') for i in porcentagem_de_aumento],
-    'VALOR DO TOKEN EM 2025': [str(f'R$ {round(m.valor * pct, 2)}') for m, pct in zip(moedas.values(), porcentagem_de_aumento)],
-    'RENDIMENTO' : [str(f'R$ {round(m.quantidade * pct, 2)}') for m, pct in zip(moedas.values(), porcentagem_de_aumento)]
+    'VALOR DO TOKEN EM 2025': [str(f'R$ {round(m.valor * (1 + pct), 2)}') for m, pct in zip(moedas.values(), porcentagem_de_aumento)],
+    'RENDIMENTO' : [str(f'R$ {round(m.quantidade *(1 + pct), 2)}') for m, pct in zip(moedas.values(), porcentagem_de_aumento)]
 }
 
 
