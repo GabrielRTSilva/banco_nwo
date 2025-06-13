@@ -64,11 +64,10 @@ streamlit run app.py
 📎 Estrutura do Projeto
 
 sistema_bancario/
-│
-├── app.py                  # Aplicação principal em Streamlit
-├── objetos.py              # Definição da classe moeda
-├── requirements.txt        # Dependências
-└── README.md               # Este arquivo
+  - app.py                  
+  - objetos.py             
+  - requirements.txt        
+  - README.md              
 
 ------------------------------------------------------------
 
