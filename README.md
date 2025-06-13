@@ -63,7 +63,7 @@ streamlit run app.py
 
 📎 Estrutura do Projeto
 
-nwo-bank/
+sistema_bancario/
 │
 ├── app.py                  # Aplicação principal em Streamlit
 ├── objetos.py              # Definição da classe moeda
