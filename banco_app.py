@@ -5,6 +5,7 @@ from objetos import moeda
 import pandas as pd
 from fpdf import FPDF
 from io import BytesIO
+import matplotlib.pyplot as plt
 
 #Data e Hora locais
 agora = datetime.now()
@@ -67,7 +68,7 @@ moedas = st.session_state.carteira
 extrato = st.session_state.extrato
 
 valor_da_moeda_topo_historico = [111970.00, 2651.53, 1.00, 179.70, 0.6628, 0.1823, 20.32, 2.19, 1.00, 4.90]
-porcentagem_de_aumento = [5.92, 1.175, 1, 14.2, 2.01, 1.815, 1.03, 4.04, 1.0,  1]
+porcentagem_de_aumento = [5.92, 1.175, 1, 14.2, 2.01, 1.815, 1.03, 4.04, 1,  1]
 
 
 #App Contet
@@ -112,6 +113,8 @@ aba1, aba2, aba3, aba4, aba5= st.tabs(["🛅 Deposito", "🪙 Saque",  "💼 Car
 
 
 with aba1:
+    st.subheader('Realize o seu depósito com a NWO Bank!')
+
     moeda_deposito_selecionada = st.selectbox('Escolha a moeda que deseja depositar:', list(moedas.keys()))    
     valor_depositado = st.number_input("Digite o valor a ser depositado. Mínimo de R$10",  min_value=10)
 
@@ -129,6 +132,8 @@ with aba1:
         st.success('Depósito realizado com sucesso. Verifique sua carteira.')
 
 with aba2:
+    st.subheader('Realize o seu saque com a NWO Bank!')
+
     moeda_saque_selecionada = st.selectbox('Escolha a moeda que deseja sacar:', list(moedas.keys()))    
     valor_sacado = st.number_input("Digite o valor a ser sacado. Mínimo de R$5,",  min_value=5)
 
@@ -141,7 +146,7 @@ with aba2:
             #Adicionar registro no extrato após a operação
             extrato['OPERAÇÃO'].append('Saque')
             extrato['DATA'].append(data_formatada_br)
-            extrato['MOEDA'].append(moeda_saque_selecionada)
+            extrato['TOKEN'].append(moeda_saque_selecionada)
             extrato['VALOR MOVIMENTADO'].append(str(f'R$ {valor_sacado}'))
             extrato['CAIXA'].append(str(f'R${moedas[moeda_saque_selecionada].quantidade}'))
 
@@ -149,17 +154,51 @@ with aba2:
             st.success('Saque realizado com sucesso. Verifique seu extrato.')
 
 with aba3:
-    st.subheader("Carteira")
+    st.subheader("Confira abaixo a sua carteira de investimentos!")
 
-    table_carteira = {
-    'TOKEN': [i.nome_visual for i in moedas.values()],
-    'NOME': [i.nome for i in moedas.values()],
-    'VALOR DA MOEDA': [str(f'R$ {i.valor}') for i in moedas.values()],
-    'QTD TOKENS': [ str(f'{i.quantidade/i.valor}') for i in moedas.values()],
-    'VALOR APLICADO': [ str(f'R${i.quantidade}') for i in moedas.values()]
-    }
+    aba6, aba7 = st.tabs(['Tabela', 'Gráfico'])
 
-    st.table(table_carteira)
+
+    with aba6:
+        table_carteira = {
+        'TOKEN': [i.nome_visual for i in moedas.values()],
+        'NOME': [i.nome for i in moedas.values()],
+        'VALOR DO TOKEN': [str(f'R${i.valor}') for i in moedas.values()],
+        'QTD. TOKENS': [ str(f'{round(i.quantidade/i.valor, 3)}') for i in moedas.values()],
+        'VALOR APLICADO': [ str(f'R${i.quantidade}') for i in moedas.values()]
+        }
+
+        st.table(table_carteira)
+    with aba7:
+        # Dados
+        tokens = []
+        valores = []
+
+        for i in moedas.values():
+            if i.quantidade > 0:
+                tokens.append(i.nome)
+                valores.append(i.quantidade)
+
+        opcao_grafico = st.selectbox("Escolha o tipo a visualização:", ["Distribuição da Carteira", "Valor Aplicado por Token",])
+
+        if sum(valores) == 0:
+            st.info("Você ainda não possui valores aplicados na carteira. Realize um depósito para visualizar os gráficos.")
+        else:
+            if opcao_grafico == "Distribuição da Carteira":
+                fig1, ax1 = plt.subplots()
+                ax1.pie(valores, labels=tokens, autopct='%1.1f%%', startangle=90)
+                ax1.axis('equal')  # Deixa a pizza redonda
+                st.pyplot(fig1)
+
+            elif opcao_grafico == "Valor Aplicado por Token":
+                fig2, ax2 = plt.subplots()
+                ax2.bar(tokens, valores)
+                ax2.set_ylabel('Valor investido (R$)')
+                ax2.set_title('Valor Aplicado por Criptomoeda')
+                plt.xticks(rotation=45)
+                st.pyplot(fig2)
+
+
 
 with aba4:
     st.write("Confira o seu extrato abaixo")
@@ -175,16 +214,17 @@ with aba4:
 
 with aba5: 
     st.header('Quanto você teria hoje se tivesse investido o valor que possui em sua carteira do Banco NWO em criptomoedas na vida real?')
-    st.text('O último bearmarket do Bitcoin formou novos milionários ao redor do mundo. O próprio BTC atingiu o seu topo histórico em 22/05/2025 com uma alta de %592 em relação ao seu menor valor no ciclo. As altcoins mais comercializadas hoje, de acordo com a Coin Market Cap, também alavancaram o patrimônio daqueles investidores mais ousados. Veja a seguir uma tabela comparando o valor direto de cada cripto ativo em relação ao seu crescimento em porcentagem.')
+    st.text('O último bearmarket do Bitcoin formou novos milionários ao redor do mundo. O próprio BTC atingiu o seu topo histórico em 22/05/2025 com uma alta de 592% em relação ao seu menor valor no ciclo. As altcoins mais comercializadas hoje, de acordo com a Coin Market Cap, também alavancaram o patrimônio daqueles investidores mais ousados. Veja a seguir uma tabela comparando o valor direto de cada cripto ativo em relação ao seu crescimento em porcentagem.')
     st.text('Obs.: Nessa cálculo não foi considerado a variação do dolar.')
     st.divider()
 
     investimento_2025 = {
     'TOKEN': table_carteira['TOKEN'],
-    'VALOR DA MOEDA EM 2022': table_carteira['VALOR DA MOEDA'],
-    'QTD TOKENS': table_carteira['QTD TOKENS'],
-    'AUMENTO EM PORCENTAGEM ': [str(f'% {round(i * 100,2)}') for i in porcentagem_de_aumento],
-    'VALOR DA MOEDA EM 2025': [str(f'R$ {round(m.valor * pct, 2)}') for m, pct in zip(moedas.values(), porcentagem_de_aumento)],
+    'VALOR DO TOKEN EM 2022': table_carteira['VALOR DO TOKEN'],
+    'QTD TOKENS': table_carteira['QTD. TOKENS'],
+    'VALOR APLICADO EM 2022': table_carteira['VALOR APLICADO'],
+    'AUMENTO EM PORCENTAGEM ': [str(f'{round(i * 100,2)} %') for i in porcentagem_de_aumento],
+    'VALOR DO TOKEN EM 2025': [str(f'R$ {round(m.valor * pct, 2)}') for m, pct in zip(moedas.values(), porcentagem_de_aumento)],
     'RENDIMENTO' : [str(f'R$ {round(m.quantidade * pct, 2)}') for m, pct in zip(moedas.values(), porcentagem_de_aumento)]
 }
 
